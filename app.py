@@ -14,63 +14,121 @@ app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 
 mail = Mail(app)
-def sendmail(type,email):
+def sendmail(type, email):
     con = mysql.connector.connect(
         host="localhost",
         user="root",
         password="Robotics26!",
         database="codewipe"
     )
-    opt=random.randint(100000,999999)
-    curser=con.cursor(dictionary=True)
-    query="INSERT INTO otptable (email, otp, Purpose) VALUES (%s, %s, %s)"
-    curser.execute(query, (email, opt, type))
+
+    cursor = con.cursor(dictionary=True)
+
+    # Generate 6-digit OTP
+    opt = random.randint(100000, 999999)
+
+    # Check if OTP already exists for email
+    cursor.execute("SELECT * FROM otptable WHERE email=%s", (email,))
+    existing = cursor.fetchone()
+
+    if existing:
+        # Update existing OTP
+        update_query = "UPDATE otptable SET otp=%s, Purpose=%s WHERE email=%s"
+        cursor.execute(update_query, (opt, type, email))
+    else:
+        # Insert new OTP
+        insert_query = "INSERT INTO otptable (email, otp, Purpose) VALUES (%s, %s, %s)"
+        cursor.execute(insert_query, (email, opt, type))
+
     con.commit()
-    curser.close()
+    cursor.close()
     con.close()
-    msg=Message(
-        subject="OTP for "+type,
+
+    msg = Message(
+        subject="OTP for " + type,
         sender=app.config['MAIL_USERNAME'],
         recipients=[email]
     )
+
     msg.body = f"Your OTP for {type} is {opt}"
 
     msg.html = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding:20px;">
-            <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-            
-            <h2 style="color:#2e7d32; text-align:center;">CodeWipe Security Verification</h2>
-            
-            <p style="font-size:16px; color:#333;">
-                Hello,
-            </p>
-            
-            <p style="font-size:16px; color:#333;">
-                Your OTP for <strong>{type}</strong> is:
-            </p>
-            
+    <html>
+    <body style="font-family: Arial; background:#f4f6f9; padding:20px;">
+        <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px;">
+            <h2 style="color:#2e7d32; text-align:center;">CodeWipe Verification</h2>
+            <p>Your OTP for <strong>{type}</strong> is:</p>
             <div style="text-align:center; margin:25px 0;">
                 <span style="font-size:28px; font-weight:bold; color:white; background:#2e7d32; padding:15px 25px; border-radius:8px; letter-spacing:4px;">
-                {opt}
+                    {opt}
                 </span>
             </div>
-            
             <p style="font-size:14px; color:#777;">
-                This OTP is valid for a limited time. Do not share it with anyone.
+                This OTP is valid for limited time.
             </p>
+        </div>
+    </body>
+    </html>
+    """
 
-            <hr style="margin:20px 0;">
-
-            <p style="font-size:12px; color:#aaa; text-align:center;">
-                © 2026 CodeWipe | Secure Data Erasure Platform
-            </p>
-
-            </div>
-        </body>
-        </html>
-        """
     mail.send(msg)
+# def sendmail(type,email):
+#     con = mysql.connector.connect(
+#         host="localhost",
+#         user="root",
+#         password="Robotics26!",
+#         database="codewipe"
+#     )
+#     opt=random.randint(100000,999999)
+#     curser=con.cursor(dictionary=True)
+#     query="INSERT INTO otptable (email, otp, Purpose) VALUES (%s, %s, %s)"
+#     curser.execute(query, (email, opt, type))
+#     con.commit()
+#     curser.close()
+#     con.close()
+#     msg=Message(
+#         subject="OTP for "+type,
+#         sender=app.config['MAIL_USERNAME'],
+#         recipients=[email]
+#     )
+#     msg.body = f"Your OTP for {type} is {opt}"
+
+#     msg.html = f"""
+#         <html>
+#         <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding:20px;">
+#             <div style="max-width:500px; margin:auto; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            
+#             <h2 style="color:#2e7d32; text-align:center;">CodeWipe Security Verification</h2>
+            
+#             <p style="font-size:16px; color:#333;">
+#                 Hello,
+#             </p>
+            
+#             <p style="font-size:16px; color:#333;">
+#                 Your OTP for <strong>{type}</strong> is:
+#             </p>
+            
+#             <div style="text-align:center; margin:25px 0;">
+#                 <span style="font-size:28px; font-weight:bold; color:white; background:#2e7d32; padding:15px 25px; border-radius:8px; letter-spacing:4px;">
+#                 {opt}
+#                 </span>
+#             </div>
+            
+#             <p style="font-size:14px; color:#777;">
+#                 This OTP is valid for a limited time. Do not share it with anyone.
+#             </p>
+
+#             <hr style="margin:20px 0;">
+
+#             <p style="font-size:12px; color:#aaa; text-align:center;">
+#                 © 2026 CodeWipe | Secure Data Erasure Platform
+#             </p>
+
+#             </div>
+#         </body>
+#         </html>
+#         """
+#     mail.send(msg)
 
 
 
