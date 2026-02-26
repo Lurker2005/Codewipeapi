@@ -140,7 +140,7 @@ def login():
 
     con = mysql.connector.connect(
             host="localhost",
-            user="root",
+            user="codewipe",
             password="Robotics26!",
             database="codewipe"
     )
