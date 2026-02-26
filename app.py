@@ -172,9 +172,6 @@ def verifyotp():
     data = flask.request.get_json()
     otp = data.get("otp")
     email = data.get("email")
-
-    lat = data.get("lat")
-    longi = data.get("long")
     query = "SELECT * FROM otptable WHERE email=%s"
     cursor = con.cursor(dictionary=True)
     cursor.execute(query, (email,))
@@ -185,24 +182,13 @@ def verifyotp():
         if(record["Purpose"] == "Login"):
             query = "DELETE FROM otptable WHERE email=%s"
             cursor.execute(query, (email,))
-
             con.commit()
-            cursor.execute("""
-            INSERT INTO loginlogs(username,lat,long,Purpose)
-            VALUES(%s,%s,%s,%s)
-            """,(email,lat,longi,"Login"))
-
             cursor.close()
             con.close()
             return "Login Successful"
         else:
             query = "INSERT INTO usertable (email, Username, Phonenumber, password) SELECT email, Username, Phonenumber, password FROM registerpending WHERE email=%s"
             cursor.execute(query, (email,))
-
-            cursor.execute("""
-            INSERT INTO loginlogs(username,lat,long,Purpose)
-            VALUES(%s,%s,%s,%s)
-            """,(email,lat,longi,"Registration"))
             
             query = "DELETE FROM registerpending WHERE email=%s"
             cursor.execute(query, (email,))
