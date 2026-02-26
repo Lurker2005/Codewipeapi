@@ -17,7 +17,7 @@ mail = Mail(app)
 def sendmail(type, email):
     con = mysql.connector.connect(
         host="localhost",
-        user="root",
+        user="codewipe",
         password="Robotics26!",
         database="codewipe"
     )
@@ -164,7 +164,7 @@ def login():
 def verifyotp():
     con = mysql.connector.connect(
             host="localhost",
-            user="root",
+            user="codewipe",
             password="Robotics26!",
             database="codewipe"
     )
@@ -211,7 +211,7 @@ def register():
 
     con = mysql.connector.connect(
             host="localhost",
-            user="root",
+            user="codewipe",
             password="Robotics26!",
             database="codewipe"
     )
