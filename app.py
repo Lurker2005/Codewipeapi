@@ -47,7 +47,7 @@ def sendmail(type, email):
 
     msg = Message(
         subject="OTP for " + type,
-        sender=app.config['MAIL_USERNAME'],
+        sender=app.config['MAIL_DEFAULT_SENDER'],
         recipients=[email]
     )
 
